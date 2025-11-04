@@ -1,0 +1,4 @@
+
+break test/main.c:47 if redd > 500
+start
+c
