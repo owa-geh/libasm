@@ -10,6 +10,7 @@ void grn() {printf("\x1b[1;32m");}
 void ylw() {printf("\x1b[1;33m");}
 void rst() {printf("\x1b[1;0m\n");}
 
+
 void test_write(char *testmsg, int fd, char *buf, size_t len) {
 	ylw();printf("----- Write test %s -----", testmsg);rst();
 	int res = write(fd, buf, len);

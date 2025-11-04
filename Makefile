@@ -11,6 +11,7 @@ AOBJ   = $(addprefix obj/, $(FILES:.s=.o))
 AOBJ_B = $(addprefix obj/, $(BFILES:.s=.o))
 VAL    = valgrind --leak-check=full --show-leak-kinds=all \
 		 --track-origins=yes --show-mismatched-frees=yes --track-fds=yes
+		 
 
 obj/%.o: src/%.s
 	@mkdir -p obj

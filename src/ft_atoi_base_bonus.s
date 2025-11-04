@@ -1,6 +1,5 @@
 section .note.GNU-stack noalloc progbits
 	db 0
-
 section .data
 	offset dq 0
 section .text
