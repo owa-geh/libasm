@@ -3,6 +3,7 @@ section .note.GNU-stack noalloc progbits
 section .text
 extern malloc
 extern __errno_location
+extern errout
 global ft_list_push_front
 global ft_list_size
 global ft_list_sort
@@ -25,16 +26,13 @@ ft_list_push_front:
 	ret
 	.errnomem:
 		mov rdi,12
-		call __errno_location wrt ..plt
-		mov [rax],rdi
-		mov rax,0
-		ret
+		call errout
 
 ft_list_size:
+	mov rax,0
 	push rbx
 	cmp rdi,0			;nullcheck list*
 	je .done
-	mov rax,0
 	.loop_size:
 		inc rax
 		mov rbx,[rdi+8]
@@ -106,7 +104,6 @@ ft_list_sort:
 	pop rcx
 	pop rdx
 	pop rsi
-	jmp %2
 %endmacro
 
 ft_list_remove_if:
@@ -150,9 +147,7 @@ ft_list_remove_if:
 				.continue:
 				mov [r13+8],r15	;link previous node to next*
 				liberate [r14], .freed_string
-				.freed_string:
 				liberate r14, .freed_ptr
-				.freed_ptr:
 				mov rdi,r14		;move list* to arg1
 				cmp r15,0		;nullcheck next* for exit
 				je .done

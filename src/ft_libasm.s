@@ -111,6 +111,7 @@ ft_strdup:
 ft_read:
 	cmp edi,0						;check for bad fd or stdin
 	jg .check_size
+;	jg .continue
 	je .stdin
 	mov rax,-9
 	jmp .error
@@ -126,17 +127,12 @@ ft_read:
 
 		pop rdx
 		pop rsi
-		;jmp .continue
+		jmp .continue
 		cmp rdx,r8					;limit read len if necessary
 		jle .continue
 		mov rdx,r8
 	.continue:
-		push rdx
 		sysc 0, rdi, rsi, rdx, 0	;read
-		add r9,rdx
-		sysc 8, rdi, r9, 0, 0		;lseek: set new file *offset
-		pop rdx
-		mov rax,rdx					;return length param
 		ret
 	.error:
 		neg rax						;failed syscall returns are -errno's, so they have to be negated first

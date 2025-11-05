@@ -10,17 +10,6 @@ void grn() {printf("\x1b[1;32m");}
 void ylw() {printf("\x1b[1;33m");}
 void rst() {printf("\x1b[1;0m\n");}
 
-
-void test_write(char *testmsg, int fd, char *buf, size_t len) {
-	ylw();printf("----- Write test %s -----", testmsg);rst();
-	int res = write(fd, buf, len);
-	ylw();printf("\nog write returns: %d, errno %d: %s", res, errno, strerror(errno));rst();
-	errno = 0;
-	res = ft_write(fd, buf, len);
-	ylw();printf("\nft_write returns: %d, errno %d: %s", res, errno, strerror(errno));rst();
-	errno = 0;
-}
-
 void test_strcmp(char *s1, char *s2) {
 	int r1 = ft_strcmp(s1, s2);
 	printf("%i = %i\n", r1, strcmp(s1, s2));
@@ -75,6 +64,16 @@ void test_read_fd(char *teststr, int fd, ssize_t (*func)(int, void *, size_t), i
 	free(buf);
 }
 
+void test_write(char *testmsg, int fd, char *buf, size_t len) {
+	ylw();printf("----- Write test %s -----", testmsg);rst();
+	int res = write(fd, buf, len);
+	ylw();printf("\nog write on fd %d returns: %d, errno %d: %s", fd, res, errno, strerror(errno));rst();
+	errno = 0;
+	res = ft_write(fd, buf, len);
+	ylw();printf("\nft_write on fd %d returns: %d, errno %d: %s", fd, res, errno, strerror(errno));rst();
+	errno = 0;
+}
+
 int main(void) {
 	grn();printf("\n\n-----------------------FT_STRLEN----------------");rst();
 //	printf("strlen of NULL: %li\n", ft_strlen(NULL));//has to segfault
@@ -83,27 +82,27 @@ int main(void) {
 
 	grn();printf("\n\n-----------------------FT_READ------------------");rst();
 	int out = 0;
-	//test_read("og write buffer too small", "./test/test.txt", &read, 42, 673, out);//corrupts top size
-	//test_read("ft_write buffer too small", "./test/test.txt", &ft_read, 42, 673, out);//corrupts top size
-	test_read("og read bad fd", "farts", &read, 4096, 673, out);
-	test_read("ft_read bad fd", "farts", &ft_read, 4096, 673, out);
+	//test_read("og write buffer too small", "./test/test.txt", &read, 42, 674, out);//corrupts top size
+	//test_read("ft_write buffer too small", "./test/test.txt", &ft_read, 42, 674, out);//corrupts top size
+	test_read("og read bad fd", "farts", &read, 4096, 674, out);
+	test_read("ft_read bad fd", "farts", &ft_read, 4096, 674, out);
 	test_read("og read overread", "./test/test.txt", &read, 4096, 730, out);
 	test_read("read overread", "./test/test.txt", &ft_read, 4096, 730, out);
-	test_seq_read("og read sequential read", "./test/test.txt", &read, 673, out);
-	test_seq_read("ft_read sequential read", "./test/test.txt", &ft_read, 673, out);
+	test_seq_read("og read sequential read", "./test/test.txt", &read, 674, out);
+	test_seq_read("ft_read sequential read", "./test/test.txt", &ft_read, 674, out);
 	//test_read_fd("og read stdin", 0, &read, 4096, 1);
 	//test_read_fd("ft_read stdin", 0, &read, 4096, 1);
 	//test_read_fd("og read stdout", 1, &read, 4096, 1);//redirs to stdin
 	//test_read_fd("ft_read stdout", 1, &read, 4096, 1);
 	//test_read_fd("og read stderr", 2, &read, 4096, 1);
 	//test_read_fd("ft_read stderr", 2, &read, 4096, 1);
-
+	
 	grn();printf("\n\n----------------FT_STRDUP / FT_STRCPY-----------");rst();
 //	char *fubar = ft_strdup(NULL);//has to segfault
 //	char *fubar; ft_strcpy(fubar, NULL);//has to segfault
-	int fd = open("./test/test.txt", O_RDONLY);//673 bytes
+	int fd = open("./test/test.txt", O_RDONLY);//674 bytes
 	char buf[4096];
-	int redd = ft_read(fd, &buf, 397);
+	int redd = ft_read(fd, &buf, 674);
 	buf[redd] = 0;
 	close(fd);
 	char *src = ft_strdup(buf);
@@ -138,11 +137,26 @@ int main(void) {
 	test_write("NULL", 1, NULL, ft_strlen(src));
 	test_write("wrong fd", 5, src, 3);
 	test_write("failed open", -1, src, 3);
-	test_write("normal string", 1, buf, ft_strlen(src));
-	test_write("overshoot", 1, str, 42);
-	test_write("to stdin", 0, str, 42);
-
+	test_write("normal string", 1, src, ft_strlen(src));
+	test_write("overshoot", 1, str2, 42);
+	test_write("to stdin", 0, src, 42);//redirects to stdout
+	int outfile = open("out.txt", O_RDWR | O_APPEND | O_CREAT, 0777);
+	int rdonly = open("rdonly.txt", O_RDONLY | O_CREAT, 0444);
+	test_write("outfile", outfile, src, ft_strlen(src));
+	test_write("read only file", rdonly, src, ft_strlen(src));
+	
+	lseek(outfile, 0, SEEK_SET);
+	int filelen = ft_read(outfile, &buf, 4000);
+	buf[filelen] = 0;
+	ylw();printf("outfile: \n");rst();
+	ft_write(1, &buf, ft_strlen(buf));
+	close(rdonly);
+	close(outfile);
+	unlink("out.txt");
+	unlink("rdonly.txt");
 	free(dst);
 	free(src);
 	free(str2);
 }
+
+

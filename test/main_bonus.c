@@ -8,7 +8,6 @@
 #include <string.h>
 #include <unistd.h>
 
-
 /*
 ft_atoi:
 • Write a function that converts the initial portion of the string pointed to by str into its
@@ -87,7 +86,7 @@ int main(void) {
 	test_atoi("err inv base char:\t", "1234567890", " 123456789");
 
 	printf("\n------------------ FT_LIST -----------------------\n");
-	//printf("list type size: %li\n", sizeof(t_list));
+	//printf("list type size: %li bytes\n", sizeof(t_list));
 	t_list *p_list = NULL;
 	printf("Null checks... ");
 	ft_list_size(NULL);
@@ -140,8 +139,7 @@ int main(void) {
 	ft_list_remove_if(&p_list, "Arthur", &ft_strcmp, &free);
 	ft_list_remove_if(&p_list, "Marvin", &ft_strcmp, &free);
 	ft_list_remove_if(&p_list, "Trillian", &ft_strcmp, &free);
-	t_list *current = p_list;
-		print_list(p_list);
+	print_list(p_list);
 	printf("OK!\n");
 	printf("list size: %i elements\n", ft_list_size(p_list));
 }
