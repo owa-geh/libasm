@@ -1,5 +1,6 @@
 section .note.GNU-stack noalloc progbits
 	db 0
+
 section .text
 extern malloc
 extern __errno_location

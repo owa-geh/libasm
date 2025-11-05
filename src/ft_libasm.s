@@ -9,8 +9,6 @@ global ft_strdup
 global ft_read
 global ft_write
 global errout
-global charraytest
-global stringtest
 extern __errno_location
 extern malloc
 extern malloc_usable_size
