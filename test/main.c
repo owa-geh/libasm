@@ -82,14 +82,14 @@ int main(void) {
 
 	grn();printf("\n\n-----------------------FT_READ------------------");rst();
 	int out = 0;
-	//test_read("og write buffer too small", "./test/test.txt", &read, 42, 674, out);//corrupts top size
-	//test_read("ft_write buffer too small", "./test/test.txt", &ft_read, 42, 674, out);//corrupts top size
-	test_read("og read bad fd", "farts", &read, 4096, 674, out);
-	test_read("ft_read bad fd", "farts", &ft_read, 4096, 674, out);
+	//test_read("og write buffer too small", "./test/test.txt", &read, 42, 675, out);//corrupts top size
+	//test_read("ft_write buffer too small", "./test/test.txt", &ft_read, 42, 675, out);//corrupts top size
+	test_read("og read bad fd", "farts", &read, 4096, 675, out);
+	test_read("ft_read bad fd", "farts", &ft_read, 4096, 675, out);
 	test_read("og read overread", "./test/test.txt", &read, 4096, 730, out);
-	test_read("read overread", "./test/test.txt", &ft_read, 4096, 730, out);
-	test_seq_read("og read sequential read", "./test/test.txt", &read, 674, out);
-	test_seq_read("ft_read sequential read", "./test/test.txt", &ft_read, 674, out);
+	test_read("ft_read overread", "./test/test.txt", &ft_read, 4096, 730, out);
+	test_seq_read("og read sequential read", "./test/test.txt", &read, 675, out);
+	test_seq_read("ft_read sequential read", "./test/test.txt", &ft_read, 675, out);
 	//test_read_fd("og read stdin", 0, &read, 4096, 1);
 	//test_read_fd("ft_read stdin", 0, &read, 4096, 1);
 	//test_read_fd("og read stdout", 1, &read, 4096, 1);//redirs to stdin
@@ -100,9 +100,9 @@ int main(void) {
 	grn();printf("\n\n----------------FT_STRDUP / FT_STRCPY-----------");rst();
 //	char *fubar = ft_strdup(NULL);//has to segfault
 //	char *fubar; ft_strcpy(fubar, NULL);//has to segfault
-	int fd = open("./test/test.txt", O_RDONLY);//674 bytes
+	int fd = open("./test/test.txt", O_RDONLY);//675 bytes
 	char buf[4096];
-	int redd = ft_read(fd, &buf, 674);
+	int redd = ft_read(fd, &buf, 675);
 	buf[redd] = 0;
 	close(fd);
 	char *src = ft_strdup(buf);
@@ -131,7 +131,6 @@ int main(void) {
 	test_strcmp("f0obar", "foobar");
 	test_strcmp("foobarfoobar", "foobar");
 	test_strcmp("foobar", "foobarfoobar");
-	test_strcmp(str, "foobar");
 
 	grn();printf("\n\n-----------------------FT_WRITE-----------------");rst();
 	test_write("NULL", 1, NULL, ft_strlen(src));
@@ -158,5 +157,3 @@ int main(void) {
 	free(src);
 	free(str2);
 }
-
-

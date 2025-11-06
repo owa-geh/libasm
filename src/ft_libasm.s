@@ -95,65 +95,23 @@ ft_strdup:
 		call errout
 		ret
 
-%macro sysc 5
+%macro exec_syscall 1
 	mov rax,%1
-	mov rdi,%2
-	mov rsi,%3
-	mov rdx,%4
-	mov rcx,%5
 	syscall
 	cmp rax,0
-	jl .error					;if syscall return == below zero, return errno
+	jl .error			;if syscall return == below zero, return errno
+	ret
+	.error:
+		neg rax			;failed syscall returns are -errno's, so they have to be negated first
+		mov rdi,rax
+		mov rsi,-1
+		call errout
+		ret
 %endmacro
 
 ft_read:
-	cmp edi,0						;check for bad fd or stdin
-	jg .check_size
-;	jg .continue
-	je .stdin
-	mov rax,-9
-	jmp .error
-	.check_size:
-		push rsi
-		push rdx
-		sysc 8, rdi, 0, 1, 0		;lseek: retrieve file* offset
-		mov r9,rax
-		sysc 8, rdi, 0, 2, 0		;lseek: retrieve offset of eof
-		mov r8,rax
-		sub r8,r9					;<- max. possible read len
-		sysc 8, rdi, r9, 0, 0		;lseek: reset file* offset
+	exec_syscall 0		;syscall 0 = read
 
-		pop rdx
-		pop rsi
-		jmp .continue
-		cmp rdx,r8					;limit read len if necessary
-		jle .continue
-		mov rdx,r8
-	.continue:
-		sysc 0, rdi, rsi, rdx, 0	;read
-		ret
-	.error:
-		neg rax						;failed syscall returns are -errno's, so they have to be negated first
-		mov rdi,rax
-		mov rsi,-1
-		call errout
-		ret
-	.stdin:
-		sysc 0, rdi, rsi, rdx, 0
-		mov rax,-1
-		.check_nl:
-			inc rax
-			cmp byte[rsi+rax],10
-			jne .check_nl
-			inc rax
-			ret
 
 ft_write:
-	sysc 1, rdi, rsi, rdx, rcx	;write syscall
-	ret
-	.error:
-		neg rax					;failed syscall returns are -errno's, so they have to be negated first
-		mov rdi,rax
-		mov rsi,-1
-		call errout
-		ret
+	exec_syscall 1		;syscall 1 = write
