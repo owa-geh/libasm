@@ -41,6 +41,10 @@ Examples of invalid arguments:
 ◦ The base contains +, -, or whitespace characters.
 */
 
+void grn() {printf("\x1b[1;32m");}
+void ylw() {printf("\x1b[1;33m");}
+void rst() {printf("\x1b[1;0m\n");}
+
 void test_atoi(char *teststr, char *str, char *base) {
 	errno = 0;
 	int res = ft_atoi_base(str, base);
@@ -59,13 +63,15 @@ void print_list(t_list *list) {
 }
 
 int main(void) {
-	printf("\n--------------- FT_ATOI_BASE ---------------------\n");
+	ylw();printf("\n--------------- FT_ATOI_BASE ---------------------\n");rst();
 	test_atoi("123456789 base 10:\t", "123456789", "0123456789");
+	test_atoi("123456789 unicode 10:\t", "😂🌟✓☺ༀ®π~ü", "⁰😂🌟✓☺ༀ®π~ü");
 	test_atoi("INT_MAX base 10:\t", "2147483647", "0123456789");
 	test_atoi("INT_MIN base 10:\t", "-2147483648", "0123456789");
+	test_atoi("123456789 base 2:\t", "0111010110111100110100010101", "01");
+	test_atoi("42 base 2 in 😂🌟:\t", "😂🌟😂🌟😂🌟", "🌟😂");
 	test_atoi("123456789 base 16:\t", "75BCD15", "0123456789ABCDEF");
 	test_atoi("195948557 base 16:\t", "BADF00D", "0123456789ABCDEF");
-	test_atoi("123456789 base 2:\t", "0111010110111100110100010101", "01");
 	test_atoi("whitespace+ 123456789:\t", " \f\n\r\t\v+123456789", "0123456789");
 	test_atoi("-123456789 base 10:\t", "-123456789", "0123456789");
 	test_atoi("+- - 123456789 base 10:\t", "+- - 123456789", "0123456789");
@@ -74,6 +80,8 @@ int main(void) {
 	printf("\nerror tests:\n");
 	test_atoi("err overflow:\t\t", "2147483648", "0123456789");
 	test_atoi("err underflow:\t\t", "-2147483649", "0123456789");
+	test_atoi("nullcheck str:\t\t", NULL, "0123456789");
+	test_atoi("nullcheck base:\t\t", "0123456789", NULL);
 	test_atoi("err base space:\t\t", "123456789", " 0123456789");
 	test_atoi("err base \\f:\t\t", "123456789", "\f0123456789");
 	test_atoi("err base \\n:\t\t", "123456789", "\n0123456789");
@@ -85,31 +93,32 @@ int main(void) {
 	test_atoi("err dbl base char:\t", "1234567890", "0123056789");
 	test_atoi("err inv base char:\t", "1234567890", " 123456789");
 
-	printf("\n------------------ FT_LIST -----------------------\n");
+	ylw();printf("\n------------------ FT_LIST -----------------------\n");rst();
 	//printf("list type size: %li bytes\n", sizeof(t_list));
 	t_list *p_list = NULL;
 	printf("Null checks... ");
 	ft_list_size(NULL);
 	ft_list_size(p_list);
+	ft_list_push_front(&p_list, NULL);
 	ft_list_sort(&p_list, &ft_strcmp);
 	ft_list_remove_if(&p_list, "Harl", &ft_strcmp, &free);
-	ft_list_push_front(&p_list, ft_strdup("Arthur"));
 	ft_list_remove_if(&p_list, NULL, &ft_strcmp, &free);
 	ft_list_remove_if(&p_list, "Harl", NULL, &free);
 	ft_list_remove_if(&p_list, "Harl", &ft_strcmp, NULL);
 	ft_list_sort(&p_list, NULL);
-	printf("OK!\n");
+	grn();printf("OK!\n");rst();
 
 	printf("removing wrong element... ");
+	ft_list_push_front(&p_list, ft_strdup("Arthur"));
 	ft_list_remove_if(&p_list, "Harl", &ft_strcmp, &free);
-	printf("OK!\n");
+	grn();printf("OK!\n");rst();
 	printf("list size: %i elements\n", ft_list_size(p_list));
 	printf("sorting single element... ");
 	ft_list_sort(&p_list, &ft_strcmp);
-	printf("OK!\n");
+	grn();printf("OK!\n");rst();
 	printf("removing single element... ");
 	ft_list_remove_if(&p_list, "Arthur", &ft_strcmp, &free);
-	printf("OK!\n");
+	grn();printf("OK!\n");rst();
 	printf("list size: %i elements\n", ft_list_size(p_list));
 	print_list(p_list);
 
@@ -122,13 +131,13 @@ int main(void) {
 	ft_list_push_front(&p_list, ft_strdup("Harl"));
 	ft_list_push_front(&p_list, ft_strdup("Zaphod"));
 	ft_list_push_front(&p_list, ft_strdup("Harl"));
-	printf("OK!\n");
+	grn();printf("OK!\n");rst();
 	printf("unsorted list: ");
 	print_list(p_list);
 	printf("list size: %i elements\n", ft_list_size(p_list));
 	printf("removing Harl... ");
 	ft_list_remove_if(&p_list, "Harl", &ft_strcmp, &free);
-	printf("OK!\n");
+	grn();printf("OK!\n");rst();
 	print_list(p_list);
 	ft_list_sort(&p_list, &ft_strcmp);
 	printf("sorted list: ");
@@ -140,6 +149,6 @@ int main(void) {
 	ft_list_remove_if(&p_list, "Marvin", &ft_strcmp, &free);
 	ft_list_remove_if(&p_list, "Trillian", &ft_strcmp, &free);
 	print_list(p_list);
-	printf("OK!\n");
+	grn();printf("OK!\n");rst();
 	printf("list size: %i elements\n", ft_list_size(p_list));
 }

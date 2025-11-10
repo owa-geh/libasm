@@ -37,8 +37,8 @@ re: fclean all
 test: re
 	@clear
 	@$(CC) $(CFLAGS) test/main.c $(NAME)
-	@$(VAL) ./a.out #valgrind shows different strcmp results
-#	@./a.out
+#	@$(VAL) ./a.out #valgrind shows different strcmp results
+	@./a.out
 	@rm a.out
 
 test_bonus: fclean bonus

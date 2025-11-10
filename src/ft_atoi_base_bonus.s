@@ -1,8 +1,19 @@
+%define IN_STR rdi
+%define BASE_STR rsi
+%define IN_CHAR ebx
+%define BASE_CHAR edx
+%define IN_STRLEN r8
+%define BASE_STRLEN r9
+%define IN_STR_ITER r10
+%define BASE_STR_ITER r11
+%define IN_CHAR_SIZE r12
+%define BASE_ITER r13
+%define BASE r14
+%define NEGATIVE r15
+
 section .note.GNU-stack noalloc progbits
 	db 0
 
-section .data
-	offset dq 0
 section .text
 global ft_atoi_base
 extern ft_strlen
@@ -12,6 +23,7 @@ extern __errno_location
 	cmp cl,%1
 	je %2
 %endmacro
+
 %macro checkWhitespace 2		;check char for +, - or whitespace(space, \f, \n, \r, \t, \v)
 	cmpChar 43,	%1
 	cmpChar 45,	%2
@@ -23,68 +35,110 @@ extern __errno_location
 	cmpChar 11,	%1
 %endMacro
 
+%macro get_char 4				;input string - string offset - char dst - char len
+	push %1
+	add %1,%2
+	mov %3,0
+	mov ecx,0
+	mov cl,byte[%1]
+	cmp cx,0xF0
+	jge %%four_chars
+	cmp cx,0xE0
+	jge %%three_chars
+	cmp cx,0xC0
+	jge %%two_chars
+	add %2,1
+	mov %4,1
+	jmp %%done
+	%%two_chars:
+		mov cx,word[%1]
+		add %2,2
+		mov %4,2
+		jmp %%done
+	%%three_chars:
+		shl ecx,16
+		mov ch,byte[%1+1]
+		mov cl,byte[%1+2]
+		add %2,3
+		mov %4,3
+		jmp %%done
+	%%four_chars:
+		mov ecx,dword[%1]
+		add %2,4
+		mov %4,4
+	%%done:
+		mov %3,ecx
+		pop %1
+%endmacro
+
 ft_atoi_base:
-	mov rax,0
-	mov rbx,0
-	mov rcx,0
-	mov rdx,0
-	mov r10,1					;negative var
+	cmp IN_STR,0				;nullcheck input str*
+	je .err_arg
+	cmp BASE_STR,0				;nullcheck base str*
+	je .err_arg
 
 	call ft_strlen				;check param string for empty
 	cmp rax,0
 	je .err_arg
-	mov r8,rax					;r8 = str length
+	mov IN_STRLEN,rax
 
-	push rdi
-	mov rdi,rsi
+	push IN_STR
+	mov IN_STR,BASE_STR
 	call ft_strlen				;check base for < 2 chars
-	pop rdi
+	pop IN_STR
 	cmp rax,1
 	jle .err_arg
-	mov r9,rax					;r9 = base length
+	mov BASE_STRLEN,rax
 
-	.loop_checkBase:			;move from base end to start
-		dec rax
-		cmp rax,-1				;exit loop if done
+	mov NEGATIVE,1
+	mov BASE_STR_ITER,0
+	mov BASE_ITER,0
+	mov BASE,0
+
+	.loop_checkBase:
+		cmp BASE_STRLEN,BASE_STR_ITER		;exit loop if done
 		je .atoi
-		mov rcx,[rsi+rax]		;get char at index
-		mov rbx,-1
+		get_char BASE_STR, BASE_STR_ITER, BASE_CHAR, IN_CHAR_SIZE
+		inc BASE
+		mov IN_STR_ITER,0
+		mov IN_CHAR_SIZE,0
 		.loop_checkChar:
-			inc rbx
-			cmp r9,rbx
-			je .loop_checkBase		;end subloop if at base string end
-			cmp rax,rbx
-			je .loop_checkChar		;don't compare char with itself
-			cmp byte[rsi+rbx],cl	;compare current byte to index char
-			je .err_arg				;exit if base has same character twice
+			cmp BASE_STRLEN,IN_STR_ITER
+			je .loop_checkBase				;end subloop if at base string end
+			get_char BASE_STR, IN_STR_ITER, IN_CHAR, IN_CHAR_SIZE
+			cmp BASE_STR_ITER,IN_STR_ITER
+			je .loop_checkChar				;don't compare char with itself
+			cmp IN_CHAR,BASE_CHAR			;compare current byte to index char
+			je .err_arg						;exit if base has same character twice
 			checkWhitespace .err_arg, .err_arg
 			jmp .loop_checkChar
 
 	.atoi:
-		mov rbx,0					;init str counter
-		mov rax,0					;init return val
+		mov IN_STR_ITER,0
+		mov IN_CHAR_SIZE,0
+		mov rax,0							;init return val
 		.atoi_str_offset:
-			mov cl,byte[rdi+rbx]
+			get_char IN_STR, IN_STR_ITER, IN_CHAR, IN_CHAR_SIZE
 			checkWhitespace .incOffset, .negate
-			dec rbx
+			sub IN_STR_ITER,IN_CHAR_SIZE	;go back one char after wsp check
 		.loop_atoi:
-			inc rbx
-			cmp r8,rbx
+			cmp IN_STRLEN,IN_STR_ITER		;exit at end of in str
 			je .done
-			mov rcx,-1					;init base counter
+			get_char IN_STR, IN_STR_ITER, IN_CHAR, IN_CHAR_SIZE
+			mov BASE_STR_ITER,0
+			mov BASE_ITER,-1
 			.loop_atoiChar:
-				inc rcx
-				cmp r9,rcx				;exit loop if char not in base
+				cmp BASE_STRLEN,BASE_STR_ITER;exit if char not in base
 				je .done
-				mov dl,byte[rdi+rbx]	;get str char
-				mov dh,byte[rsi+rcx]	;get base char
-				cmp dl,dh
+				get_char BASE_STR, BASE_STR_ITER, BASE_CHAR, IN_CHAR_SIZE
+				inc BASE_ITER
+				cmp IN_CHAR,BASE_CHAR
 				jne .loop_atoiChar
-				imul rax,r9				;multiply return val by base length
-				add rax,rcx				;add iterator to base val
-				cmp r10,-1				;check underflow
+				imul rax,BASE				;multiply return val by base
+				add rax,BASE_ITER			;add iterator to base val
+				cmp NEGATIVE,-1				;check underflow
 				je .check_underflow
-				cmp rax,2147483647		;check overflow
+				cmp rax,2147483647			;check overflow
 				jg .err_ofl
 				jmp .loop_atoi
 		.check_underflow:
@@ -94,21 +148,21 @@ ft_atoi_base:
 			inc rax
 			jmp .loop_atoi
 		.negate:
-			neg r10
+			neg NEGATIVE
 		.incOffset:
 			inc rbx
 			jmp .atoi_str_offset
 
 	.done:
-		imul rax,r10
+		imul rax,NEGATIVE
 		ret
 	.err_arg:					;invalid argument
 		mov rbx,22
 		jmp .errno
 	.err_ofl:					;overflow
 		mov rbx,75
-	.errno:						;error handling:
-		call __errno_location wrt ..plt	;retrieve address of errno variable
-		mov [rax],rbx			;and save return code there
-		mov rax,0				;set return value to 0
+	.errno:
+		call __errno_location wrt ..plt
+		mov [rax],rbx
+		mov rax,0
 		ret

@@ -10,11 +10,12 @@ global ft_list_sort
 global ft_list_remove_if
 
 ft_list_push_front:
+	cmp rsi,0			;nullcheck base*
+	je .done
 	push rsp
 	push rdi
 	mov rdi,16			;set 16 bytes as malloc size
 	call malloc wrt ..plt
-
 	pop rdi
 	pop rsp
 	cmp rax,0
@@ -23,7 +24,8 @@ ft_list_push_front:
 	mov [rax],rsi		;move data to new address*
 	mov [rax+8],rcx		;move list_begin* to next*
 	mov [rdi],rax		;move address* to arg1
-	ret
+	.done:
+		ret
 	.errnomem:
 		mov rdi,12
 		call errout

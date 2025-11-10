@@ -8,7 +8,7 @@
 
 void grn() {printf("\x1b[1;32m");}
 void ylw() {printf("\x1b[1;33m");}
-void rst() {printf("\x1b[1;0m\n");}
+void rst() {printf("\x1b[1;0m");}
 
 void test_strcmp(char *s1, char *s2) {
 	int r1 = ft_strcmp(s1, s2);
@@ -79,6 +79,8 @@ int main(void) {
 //	printf("strlen of NULL: %li\n", ft_strlen(NULL));//has to segfault
 //	printf("strlen of int 42: %li\n", ft_strlen(42));//has to segfault
 	printf("strlen of foobar123: %li\n", ft_strlen("foobar123"));
+	printf("strlen of fööbar123: %li\n", ft_strlen("fööbar123"));
+	printf("strlen of 'oö😂': %li\n", ft_strlen("oö😂"));
 
 	grn();printf("\n\n-----------------------FT_READ------------------");rst();
 	int out = 0;
@@ -90,12 +92,12 @@ int main(void) {
 	test_read("ft_read overread", "./test/test.txt", &ft_read, 4096, 730, out);
 	test_seq_read("og read sequential read", "./test/test.txt", &read, 675, out);
 	test_seq_read("ft_read sequential read", "./test/test.txt", &ft_read, 675, out);
-	//test_read_fd("og read stdin", 0, &read, 4096, 1);
-	//test_read_fd("ft_read stdin", 0, &read, 4096, 1);
-	//test_read_fd("og read stdout", 1, &read, 4096, 1);//redirs to stdin
-	//test_read_fd("ft_read stdout", 1, &read, 4096, 1);
-	//test_read_fd("og read stderr", 2, &read, 4096, 1);
-	//test_read_fd("ft_read stderr", 2, &read, 4096, 1);
+	//test_read_fd("og read stdin", 0, &read, 4096, 0);
+	//test_read_fd("ft_read stdin", 0, &read, 4096, 0);
+	//test_read_fd("og read stdout", 1, &read, 4096, 0);//redirs to stdin
+	//test_read_fd("ft_read stdout", 1, &read, 4096, 0);
+	//test_read_fd("og read stderr", 2, &read, 4096, 0);
+	//test_read_fd("ft_read stderr", 2, &read, 4096, 0);
 	
 	grn();printf("\n\n----------------FT_STRDUP / FT_STRCPY-----------");rst();
 //	char *fubar = ft_strdup(NULL);//has to segfault
@@ -109,12 +111,12 @@ int main(void) {
 	int len = ft_strlen(src) + 1;
 	char *dst = malloc(len);
 	char *ret = ft_strcpy(dst, src);
-	ylw();printf("dst: ");rst();printf("%s\n", dst);
-	ylw();printf("ret: ");rst();printf("%s\n", ret);
-	ylw();printf("no terminator:");rst();
 	buf[0] = 'X';
 	buf[1] = 'Y';
 	buf[2] = 'Z';
+	ylw();printf("dst: ");rst();printf("%s\n", dst);
+	ylw();printf("ret: ");rst();printf("%s\n", ret);
+	ylw();printf("no terminator:");rst();
 	//non-terminated string
 	char str[6] = "foobar";
 	char *str2 = strdup(str);

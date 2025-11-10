@@ -11,7 +11,6 @@ global ft_write
 global errout
 extern __errno_location
 extern malloc
-extern malloc_usable_size
 
 ft_strlen:
 	mov rax,0					;init return register as counter to 0
@@ -24,7 +23,6 @@ ft_strlen:
 		ret						;return string length in rax
 
 ft_strcpy:
-
 	push rcx					;push rcx to stack to avoid interference
 	mov rcx,-1
 	.loop:
@@ -111,7 +109,6 @@ ft_strdup:
 
 ft_read:
 	exec_syscall 0		;syscall 0 = read
-
 
 ft_write:
 	exec_syscall 1		;syscall 1 = write
