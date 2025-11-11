@@ -43,7 +43,7 @@ Examples of invalid arguments:
 
 void grn() {printf("\x1b[1;32m");}
 void ylw() {printf("\x1b[1;33m");}
-void rst() {printf("\x1b[1;0m\n");}
+void rst() {printf("\x1b[1;0m");}
 
 void test_atoi(char *teststr, char *str, char *base) {
 	errno = 0;

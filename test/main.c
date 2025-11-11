@@ -8,7 +8,7 @@
 
 void grn() {printf("\x1b[1;32m");}
 void ylw() {printf("\x1b[1;33m");}
-void rst() {printf("\x1b[1;0m");}
+void rst() {printf("\x1b[1;0m\n");}
 
 void test_strcmp(char *s1, char *s2) {
 	int r1 = ft_strcmp(s1, s2);
